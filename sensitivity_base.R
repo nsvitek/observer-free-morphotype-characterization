@@ -38,6 +38,12 @@ taxon.point<-c(rgb(.7,.3,.3,1),rgb(.3,.7,1,1))
 taxon.bubble<-c(rgb(.7,.3,.3,.3),rgb(.3,.7,.7,.3))
 palette<-colorRampPalette(c("blue","green","yellow","red"))
 
+# make legend
+legend_image <- as.raster(matrix(palette(20), ncol=1))
+plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '')
+# text(x=1.5, y = c(0,1), labels = c("least","most"))
+rasterImage(legend_image, 1, 1, 0,0)
+
 # take a snapshot of objects in list -- used later
 freeze<-ls()
 

@@ -3,15 +3,15 @@
 # runs mar_repanalysis, mar_errorquant, mar_repfigs, eul_repanalysis, eul_repfigs
 
 # location of scripts
-locateScripts<-"C:/cygwin64/home/N.S/scripts"
+locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-locateData<-"C:/Users/N.S/Documents/Dissertation/sensitivity_analysis/data"
+locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 
-# load dependencies:
+# Load Dependencies ------------------------------------------------------------------
 setwd(locateScripts)
 source("sensitivity_dependencies.R")
 
-# # # # # commmonly used objects
+# Commonly Used Objects ------------------------------------------------------------------
 cluster<-c("005k0128","005k0256","005k0512","005k1024","010k0128","010k0256",
            "010k0512","010k1024","050k0128","050k0256","050k0512","050k1024",
            "100k0128","100k0256","100k0512","100k1024","fulk0128","fulk0256",
@@ -38,12 +38,13 @@ taxon.point<-c(rgb(.7,.3,.3,1),rgb(.3,.7,1,1))
 taxon.bubble<-c(rgb(.7,.3,.3,.3),rgb(.3,.7,.7,.3))
 palette<-colorRampPalette(c("blue","green","yellow","red"))
 
-# make legend
+# Make Legend ------------------------------------------------------------------
 legend_image <- as.raster(matrix(palette(20), ncol=1))
 plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '')
 # text(x=1.5, y = c(0,1), labels = c("least","most"))
 rasterImage(legend_image, 1, 1, 0,0)
 
+# Error ------------------------------------------------------------------
 # take a snapshot of objects in list -- used later
 freeze<-ls()
 
@@ -52,7 +53,7 @@ setwd(locateScripts)
 source("mar_errorquant.R")
 rm(list = setdiff(ls(),freeze)) #clean up environment, also removes freeze
 
-# # # # # Marsupial alignment senstivity analysis. 
+# Marsupials ------------------------------------------------------------------
 freeze2<-ls() #NEED THIS?
 setwd(locateData)
 taxa<-read.csv("mardat.csv",header=TRUE,sep=",")
@@ -141,7 +142,7 @@ rgl.close()
 # clean up environment
 rm(list = setdiff(ls(),freeze2))
 
-# # # # # Erinaceomorph alignment senstivity analysis.
+# Erinaceomorphs ------------------------------------------------------------------
 freeze3<-ls() #NEED THIS?
 setwd(locateData)
 taxa<-read.csv("erinacdat.csv",header=TRUE,sep=",")

@@ -262,3 +262,36 @@ alignerrPC<-function(PCA,cluster,choice,pcs=c(1,2),point.set=21,point.index,poin
   points(toplot[,pcs[1]],toplot[,pcs[2]],bg=point.color[point.index],
          pch=point.set[point.index],cex=cex)
 }
+
+### Function 6.5 from Claude (2008), used for Mantel tests
+#Input: Two square matrices
+#Output: Element-wise correlation coefficient between the lower triangles of each matrix
+
+mantrstat<-function (m1, m2)
+{ cor(lower.triang(m1),lower.triang(m2))}
+
+
+### Function 6.6 from Claude (2008)
+#Input: A square matrix (m1), number of landmarks x number of dimensions (n)
+#       and number of dimensions (coord)
+#Output: permuted matrix
+
+permrowscols<-function (m1,n,coord)
+{s <- sample(1:(n/coord))
+m1[rep(s,coord), rep(s,coord)]}
+
+### Function  6.7 from Claude (2008)
+#Input: Two square matrices (m1 and m2),
+#       number of dimensions (coord),
+#       number of permutations(nperm), and whether to graph (graph)
+#Output: observed statistic (r.stat) and a p value (p)
+
+mantel.t2<-function(m1,m2,coord=1,nperm=1000,graph=FALSE,...)
+{n<-nrow(m1)
+realz<-mantrstat(m1, m2)
+nullstats<-replicate(nperm,mantrstat(m1,permrowscols(m2,n,coord)))
+pval <- sum(nullstats > realz)/nperm
+if (graph) {
+  plot(density(nullstats), type = "l", xlim = c(0,1),...)
+  abline(v = realz, col="red")   }
+list(r.stat = realz, p = pval)}

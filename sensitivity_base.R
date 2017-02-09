@@ -5,7 +5,9 @@
 # location of scripts
 locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+# locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+
 
 # Load Dependencies ------------------------------------------------------------------
 setwd(locateScripts)

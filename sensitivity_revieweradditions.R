@@ -7,33 +7,30 @@
 #resulting in function mantel.t2(), copied to sensitivity_utils.R
 #following Claude's (2008) example (p. 265), 
 #calculate variance-covariance matrix from 2d array of specimen coordinates
-str(PCA[[1]])
-dim(PCA[[1]]$m2d)
-anderson(PCA[[180]]$sdev)
-
-var(PCA[[180]]$m2d)[1:3,1:3]
-mantel.t2(var(PCA[[180]]$m2d),var(PCA[[179]]$m2d),coord=3,nperm=99,graph=TRUE)
-test1<-mantel.t2(var(PCA[[1]]$m2d),var(PCA[[4]]$m2d),coord=3,nperm=99,graph=TRUE)
-str(test1)
-
-j<-1
-i<-3
 
 genMantelvals<-function(PCA,cluster){
   combinations<-makecombo(PCA,cluster)
   mantelR<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
   mantelP<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
-  for (j in 1:1){
+  for (j in 1:(length(combinations))){
     for (i in 1:(ncol(combinations[[j]]))){
       obj<-mantel.t2(var(PCA[[combinations[[j]][1,i]]]$m2d),var(PCA[[combinations[[j]][2,i]]]$m2d),coord=3,nperm=999,graph=FALSE)
       mantelR[[j]][i]<-obj$r.stat
       mantelP[[j]][i]<-obj$p
+      print(paste(j,i,sep="."))
     }
   }
   return(list(mantelR,mantelP))
 }
 
 mantel_vals<-genMantelvals(PCA,cluster)
+
+mantelR<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=36,byrow=TRUE)
+rownames(mantelR)<-cluster
+write.csv(mantelR,"mantelR.csv")
+mantelP<-unlist(mantel_vals[[2]]) %>% matrix(.,ncol=36,byrow=TRUE)
+rownames(mantelP)<-cluster
+write.csv(mantelP,"mantelP.csv")
 
 # Phenograms ------------------------------------------------------------------
 library(phangorn)

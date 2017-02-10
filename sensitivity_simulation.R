@@ -1,7 +1,7 @@
 locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
-# locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+# locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 
 # Load Dependencies, Common Objects ------------------------------------------------------------------
 setwd(locateScripts)
@@ -15,17 +15,17 @@ sim.palette<-brewer.pal(n=8,"PiYG") #set color palette
 
 # Load Data ------------------------------------------------------------------
 setwd(locateData)
-setwd("simulation")
+setwd("simulation2")
 lsdr<-list.dirs(path = ".", full.names = TRUE, recursive = FALSE)
-setwd(lsdr[4])
+setwd(lsdr[5])
 objs<-read.morphologika(filename)
 scld<-preprocess(objs)
 shps<-prcomp(scld$m2d,scale.=FALSE)
-anderson(shps$sdev)
-cbind(dimnames(objs)[[3]],groups) #check to make sure labels are correct
+# anderson(shps$sdev)
+# cbind(dimnames(objs)[[3]],groups) #check to make sure labels are correct
 
 # PC Plots ------------------------------------------------------------------
-plot(shps$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5)
+plot(shps$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5,main=lsdr[5])
 text(shps$x[,1],shps$x[,2],dimnames(objs)[[3]],pos=4)
 plot3d(shps$x[,1:3],col=sim.palette[groups],size=10)
 

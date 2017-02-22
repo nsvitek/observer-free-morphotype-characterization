@@ -27,10 +27,10 @@ mantel_vals<-genMantelvals(PCA,cluster)
 
 mantelR<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=36,byrow=TRUE)
 rownames(mantelR)<-cluster
-write.csv(mantelR,"mantelR.csv")
+write.csv(mantelR,"erin_mantelR.csv")
 mantelP<-unlist(mantel_vals[[2]]) %>% matrix(.,ncol=36,byrow=TRUE)
 rownames(mantelP)<-cluster
-write.csv(mantelP,"mantelP.csv")
+write.csv(mantelP,"erin_mantelP.csv")
 
 # Phenograms ------------------------------------------------------------------
 library(phangorn)
@@ -40,9 +40,9 @@ getRFdist<-function(PCA,cluster){
   distRF<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
   for (j in 1:1){
     for (i in 1:(ncol(combinations[[j]]))){
-      obj<-mantel.t2(var(PCA[[combinations[[j]][1,i]]]$m2d),var(PCA[[combinations[[j]][2,i]]]$m2d),coord=3,nperm=999,graph=FALSE)
-      mantelR[[j]][i]<-obj$r.stat
-      mantelP[[j]][i]<-obj$p
+      # obj<-mantel.t2(var(PCA[[combinations[[j]][1,i]]]$m2d),var(PCA[[combinations[[j]][2,i]]]$m2d),coord=3,nperm=999,graph=FALSE)
+      # mantelR[[j]][i]<-obj$r.stat
+      # mantelP[[j]][i]<-obj$p
     }
   }
   return(list(mantelR,mantelP))

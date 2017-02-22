@@ -26,8 +26,8 @@ PCA<-readrep(10,18,c(1:3))
 setwd("../outputr")
 
 #explore to get a sense of what you expect to find
-# plot(PCA[[60]]$x[,1:2],bg=c("black","blue")[taxa$rep+1],pch=c(21,22)[taxa$taxon])
-# anderson(PCA[[47]]$sdev^2) #first four PCs significant
+plot(PCA[[60]]$x[,1:2],bg=c("black","blue")[taxa$rep+1],pch=c(21,22)[taxa$taxon])
+anderson(PCA[[47]]$sdev^2) #first four PCs significant
 
 #make a vector of which  specimens are replicated specimens, which are not
 repgroups<-rep(1,nrow(taxa)) #base vector of replicate groups, to be modified
@@ -74,3 +74,61 @@ colnames(summary_groups)<-colnames(summary_stats)
 
 #write group-wise summary statistics to csv file
 write.csv(summary_groups,file="humerr_groups_summary-stats.csv")
+
+#Addition post-review: evaluating error through ANOVA
+library(geomorph)
+
+# #code development, testing
+# testgdf<-geomorph.data.frame(coords=PCA[[1]]$scaled,specimen=taxa$specnum)
+# errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+# repeatibility<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
+genRepeatvals<-function(PCA,cluster){
+  identity<-makegroups(PCA,cluster)
+  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
+  for (j in 1:(length(identity))){
+    for (i in 1:(length(identity[[j]]))){
+      testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$scaled,specimen=taxa$specnum)
+      errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
+      #6 used in repeatibility because 6 replicates of each repeated specimen
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(repeatibility)
+}
+genRepeatvals2<-function(PCA,cluster){
+  identity<-makegroups(PCA,cluster)
+  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
+  for (j in 1:(length(identity))){
+    for (i in 1:(length(identity[[j]]))){
+      testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$x,specimen=taxa$specnum)
+      errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
+      #6 used in repeatibility because 6 replicates of each repeated specimen
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(repeatibility)
+}
+genRepeatvals3<-function(PCA,cluster){
+  identity<-makegroups(PCA,cluster)
+  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
+  for (j in 1:(length(identity))){
+    for (i in 1:(length(identity[[j]]))){
+      testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$x[,1],specimen=taxa$specnum)
+      errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
+      #6 used in repeatibility because 6 replicates of each repeated specimen
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(repeatibility)
+}
+
+repeat_vals<-genRepeatvals(PCA,cluster)
+repeat_vals2<-genRepeatvals2(PCA,cluster)
+repeat_vals3<-genRepeatvals3(PCA,cluster)
+
+repeat_vals[[1]]
+repeat_vals2[[1]]
+repeat_vals3[[1]]

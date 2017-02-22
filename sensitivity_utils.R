@@ -295,3 +295,25 @@ if (graph) {
   plot(density(nullstats), type = "l", xlim = c(0,1),...)
   abline(v = realz, col="red")   }
 list(r.stat = realz, p = pval)}
+
+############################################################################
+#
+#   Creates a function called individual.disparity() that calculates the 
+#   morphological disparity among several specimens 
+#   from continuous data, including PC scores.  Disparity is calculated as 
+#   the mean squared distance among the specimens.  There is no standardization
+#   because individual specimens do not have variances like groups do.
+#
+#   The format is: individual.disparity( data )
+#
+#   where data are the continuous data with individual specimens on
+#   rows and variables in columns. Written by P. David Polly, 2008
+#
+############################################################################
+
+
+individual.disparity <- function(d) {
+  dists <-( dist(d))^2
+  return(mean(dists))
+}
+

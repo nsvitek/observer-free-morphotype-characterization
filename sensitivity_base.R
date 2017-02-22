@@ -61,7 +61,7 @@ setwd(locateData)
 taxa<-read.csv("mardat.csv",header=TRUE,sep=",")
 taxa2<-taxa[-which(taxa$rep==1),] #remove replicates
 setwd("marsup")
-PCA<-readrep(10,18,c(1:3)) #read in data
+PCA<-readrep(10,18,c(1:nrow(taxa2))) #read in data
 
 # hist(r_vals$'100k0128')
 
@@ -149,7 +149,7 @@ freeze3<-ls() #NEED THIS?
 setwd(locateData)
 taxa<-read.csv("erinacdat.csv",header=TRUE,sep=",")
 setwd("erinac")
-PCA<-readrep(12,22,c(1:3)) #read in data
+PCA<-readrep(12,22,c(1:nrow(taxa))) #read in data
 
 # # # # start analyzing, calculate summary statistics
 setwd("../outputr")

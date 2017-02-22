@@ -39,7 +39,7 @@ setwd(locateData)
 taxa<-read.csv("gonzalezdat.csv",header=TRUE,sep=",")
 #remove replicates
 setwd("gonzalez_output")
-PCA<-readrep(3,18,c(1:3),filename="morphologika_unscaled_high.txt") #read in data
+PCA<-readrep(3,18,c(1:nrow(taxa)),filename="morphologika_unscaled_high.txt") #read in data
 # hist(r_vals$'100k0128')
 
 # # # start analyzing

@@ -27,16 +27,16 @@ mantel_vals<-genMantelvals(PCA,cluster) #takes multiple days to run
 mantelR<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=36,byrow=TRUE)
 # mantelR<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=3,byrow=TRUE)
 rownames(mantelR)<-cluster
-write.csv(mantelR,"eul_mantelR.csv")
+write.csv(mantelR,"sim_mantelR.csv")
 mantelP<-unlist(mantel_vals[[2]]) %>% matrix(.,ncol=36,byrow=TRUE)
 # mantelP<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=3,byrow=TRUE)
 rownames(mantelP)<-cluster
-write.csv(mantelP,"eul_mantelP.csv")
+write.csv(mantelP,"sim_mantelP.csv")
 
 # summary_stats<-Rvalsumm(mantel_vals[[1]])
 # mantelR<-read.csv("mar_mantelR.csv",row.names=1,header=TRUE) %>% []
-summary_stats<-lapply(seq_len(nrow(mantelR)), function(i) unlist(mantelR[i,])) %>% 
-  Rvalsumm 
+# summary_stats<-lapply(seq_len(nrow(mantelR)), function(i) unlist(mantelR[i,])) %>% 
+#   Rvalsumm 
 row.names(summary_stats)<-cluster
 # write.csv(summary_stats,file="mar_mantelR_summary-stats.csv")
 # pfish<-Pvalsumm(mantel_vals[[1]],cluster,metric="mean")
@@ -44,7 +44,7 @@ row.names(summary_stats)<-cluster
 # pfish<-Pvalsumm(mantel_vals[[1]],cluster,metric="median")
 # write.csv(pfish,"mar_r_pairwise_median_mantelR.csv",quote=F)
 
-tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="mar_mantelR-mean_line.tif")
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="eul_mantelR-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
           pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="mean observed correlation coefficeint",cex.axis=cex.axis,
@@ -79,7 +79,8 @@ getRFdist<-function(PCA,cluster){
       cluster2<-dist(PCA[[combinations[[j]][2,i]]]$x[,1:enough], "euclidean") %>%
         hclust(., method="average")
       # cluster2$labels<-cluster1$labels<-taxa$specnum
-      cluster2$labels<-cluster1$labels<-taxa2$specnum
+      # cluster2$labels<-cluster1$labels<-taxa2$specnum
+      cluster2$labels<-cluster1$labels<-as.character(groups)
       # plot(cluster,names=taxa2$specnum)
       #phangorn version, calculate Robinson-Foulds distance,measure of difference between trees. 
       #(Steel and Penny 1993; Robinson and Foulds 1981; Wright and Hillis 2014)
@@ -91,15 +92,17 @@ getRFdist<-function(PCA,cluster){
 }
 
 RFdists<-getRFdist(PCA,cluster)
+unlist(RFdists) %>% matrix(.,ncol=36,byrow=TRUE) %>% 
+  write.csv("sim_RFdists_raw.csv")
 summary_stats<-Rvalsumm(RFdists)
 row.names(summary_stats)<-cluster
-write.csv(summary_stats,file="mar_RFdists_summary-stats.csv")
+write.csv(summary_stats,file="sim_RFdists_summary-stats.csv")
 pfish<-Pvalsumm(RFdists,cluster,metric="mean")
-write.csv(pfish,"mar_r_pairwise_mean_RFdists.csv",quote=F)
+write.csv(pfish,"sim_r_pairwise_mean_RFdists.csv",quote=F)
 pfish<-Pvalsumm(RFdists,cluster,metric="median")
-write.csv(pfish,"mar_r_pairwise_median_RFdists.csv",quote=F)
+write.csv(pfish,"sim_r_pairwise_median_RFdists.csv",quote=F)
 
-tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="mar_RFdist-mean_line.tif")
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_RFdist-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
           pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Robinson-Foulds Distance",cex.axis=cex.axis,

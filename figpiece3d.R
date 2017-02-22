@@ -61,3 +61,12 @@ shpdif<-function(shape1,shape2,palette,alter="none",outlier=FALSE,...){
   result<-raintable[colbydiff]
   return(result)
 }
+
+## Add an alpha value to a colour, from magesblog post 40 april 2013
+add.alpha <- function(col, alpha=1){
+  if(missing(col))
+    stop("Please provide a vector of colours.")
+  apply(sapply(col, col2rgb)/255, 2, 
+        function(x) 
+          rgb(x[1], x[2], x[3], alpha=alpha))  
+}

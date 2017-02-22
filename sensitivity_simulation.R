@@ -8,7 +8,7 @@ setwd(locateScripts)
 source("sensitivity_dependencies.R")
 filename<-"morphologika_unscaled_high.txt"
 groups<-c(8,1,5,6,7,8,8,8,8,8,1,1,1,1,1,2,3,4) #set group ID's
-sim.palette<-brewer.pal(n=8,"PiYG") #set color palette
+sim.palette<-brewer.pal(n=8,"Spectral") #set color palette
 
 cluster<-c("0128","0256","0512","1024","2048","4096") #group replicates
 # plot settings
@@ -24,17 +24,15 @@ line.lwd=0.2
 legend.pos='bottomright'
 legend.cex=1.5
 pset<-21
-taxon.point<-c(rgb(.7,.3,.3,1),rgb(.3,.7,1,1))
-taxon.bubble<-c(rgb(.7,.3,.3,.3),rgb(.3,.7,.7,.3))
-palette<-colorRampPalette(c("blue","green","yellow","red"))
 
+taxon.point<-add.alpha(sim.palette,alpha=1)
+taxon.bubble<-add.alpha(sim.palette,alpha=0.3)
+palette<-colorRampPalette(c("blue","green","yellow","red"))
 
 # Load Data ------------------------------------------------------------------
 setwd(locateData)
 setwd("simulation")
-
-PCA<-readrep(3,18,c(1:3),filename=filename) #read in data
-
+PCA<-readrep(19,22,c(1:length(groups)),filename=filename) #read in data
 
 # lsdr<-list.dirs(path = ".", full.names = TRUE, recursive = FALSE)
 # setwd(lsdr[32])
@@ -68,99 +66,55 @@ tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_r-val-mean_li
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
           pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab=ylab.txt,cex.axis=cex.axis,
-          legend.pos=legend.pos,legend.txt=legend.txt,legend.title=legend.title,
-          legend.cex=legend.cex,mtext.line=mtext.line)
+          mtext.line=mtext.line)
 dev.off()
 
 # plot first two PCs with alignment error
 choice<-1
 point.set<-pset
-point.index<-taxa$Experimental.Group
+point.index<-groups
 point.color<-taxon.point
 bubble.color<-taxon.bubble
 cex<-cex
 cex.lab<-cex.lab
 mtext.line<-3
-tst<-c(1,2,4,6,7)
-range(tst)
 
-rangetemp<-function(x){
-  r<-range(x)
-  singlenumber<-r[2]-r[1]
-  return(singlenumber)
-}
-alignerrPCmod<-function(PCA,cluster,choice,pcs=c(1,2),point.set=21,point.index,point.color,
-                        bubble.color,cex=1,cex.lab=1,mtext.line=1){
-  group<-makegroups(PCA,cluster)[[choice]]
-  index<-as.numeric(point.index)
-  and<-anderson(PCA[[group[1]]]$sdev)
-  bubbles<-errbvals(group,PCA,metric=rangetemp)
-  pca<-pcb<-NULL #find median value for each point.
-  for (i in 1:length(group)){
-    pca<-cbind(pca,PCA[[group[i]]]$x[,pcs[1]])
-    pcb<-cbind(pcb,PCA[[group[i]]]$x[,pcs[2]])
-  }
-  pca.median<-apply(pca,1,median)
-  pcb.median<-apply(pcb,1,median)
-  toplot<-cbind(pca.median,pcb.median)
-  xlim<-c(min(toplot[,pcs[1]]-bubbles[,1]),max(toplot[,pcs[1]]+bubbles[,1]))
-  ylim<-c(min(toplot[,pcs[2]]-bubbles[,2]),max(toplot[,pcs[2]]+bubbles[,2]))
-  plot(toplot[,pcs[1]],toplot[,pcs[2]],bg=point.color[index],pch=point.set[index],
-       cex=cex,xlim=xlim,ylim=ylim,xlab="",ylab="")
-  mtext(paste("PC ",pcs[2]," (",round(and$percent[pcs[2]],3),"%)",sep=""),side=2,
-        line=mtext.line,cex=cex.lab)
-  mtext(paste("PC ",pcs[1]," (",round(and$percent[pcs[1]],3),"%)",sep=""),side=1,
-        line=mtext.line,cex=cex.lab)
-  for (i in 1:nrow(bubbles)){
-    draw.ellipse(toplot[,pcs[1]][i],toplot[,pcs[2]][i],a=bubbles[i,1],b=bubbles[i,2],
-                 col=bubble.color[point.index[i]],border=bubble.color[point.index[i]])	
-  }
-  points(toplot[,pcs[1]],toplot[,pcs[2]],bg=point.color[point.index],
-         pch=point.set[point.index],cex=cex)
-}
+alignerrPC(PCA,cluster,choice=6,pcs=c(1,2), 
+           point.set=rep(21,8),point.index=groups,point.color=sim.palette,
+           bubble.color=taxon.bubble,cex=cex,cex.lab=cex.lab,mtext.line=3)
 
-alignerrPCmod(PCA,cluster,choice=1,pcs=c(1,2),
-              point.set=pset,point.index=taxa$Experimental.Group,point.color=taxon.point,
-              bubble.color=taxon.bubble,cex=cex,cex.lab=cex.lab,mtext.line=3)
-
-alignerrPCmod(PCA,cluster,choice=4,pcs=c(1,2),
-              point.set=pset,point.index=taxa$Experimental.Group,point.color=taxon.point,
-              bubble.color=taxon.bubble,cex=cex,cex.lab=cex.lab,mtext.line=3)
-
-# plot3d(PCA[[makegroups(PCA,cluster)[[2]][1]]]$x[,1:3],col=taxon.point[taxa$posthoc1],size=6)
-plot(PCA[[makegroups(PCA,cluster)[[1]][3]]]$x[,1:2],bg=taxon.point[taxa$Experimental.Group],pch=21)
-cluster[12]
-#in  2d:
-#1,2,5,6,7,8,9,10,13,14,15,16,17,18,19,20 no good, 3,4,11,12 ok 
-#[15,16 no err, but mixed area, which disappears if you add PC3]
-#1,5 no good, 2,6 debatable (in 3d)  ok, #3,4 ok incl pc3
-range(summary_stats[c(3,4,11,12,15,16),1])
-range(summary_stats[c(1,2,5,6,7,8,9,10,13,14,17,18,19,20),1])
+alignerrPC(PCA,cluster,choice=6,pcs=c(1,2),
+           point.set=pset,point.index=groups,point.color=taxon.point,
+           bubble.color=taxon.bubble,cex=cex,cex.lab=cex.lab,mtext.line=3)
 
 tiff(width=7,height=7,units="cm",res=300,pointsize=8,filename="sim_align_1.tif")
-par(mar=c(4,5,.5,.5))
-alignerrPCmod(PCA,cluster,choice=1,pcs=c(1,2),
-              point.set=pset,point.index=taxa$Experimental.Group,point.color=taxon.point,
+par(mar=c(4,5,.5,.5)) #best
+alignerrPC(PCA,cluster,choice=5,pcs=c(1,2),
+              point.set=rep(21,8),point.index=groups,point.color=taxon.point,
               bubble.color=taxon.bubble,cex=cex,cex.lab=2,mtext.line=2.5)
 dev.off()
 tiff(width=7,height=7,units="cm",res=300,pointsize=8,filename="sim_align_2.tif")
-par(mar=c(4,5,.5,.5))
-alignerrPCmod(PCA,cluster,choice=5,pcs=c(1,2),
-              point.set=pset,point.index=taxa$Experimental.Group,point.color=taxon.point,
+par(mar=c(4,5,.5,.5)) #worst
+alignerrPC(PCA,cluster,choice=1,pcs=c(1,2),
+              point.set=rep(21,8),point.index=groups,point.color=taxon.point,
               bubble.color=taxon.bubble,cex=cex,cex.lab=2,mtext.line=2.5)
 dev.off()
-# tiff(width=7,height=7,units="cm",res=300,pointsize=8,filename="gon_align_1.tif")
-# par(mar=c(4,5,.5,.5))
-# alignerrPC(PCA,cluster,choice=12,pcs=c(1,2),
-#            point.set=pset,point.index=taxa$posthoc1,point.color=taxon.point,
-#            bubble.color=taxon.bubble,cex=cex,cex.lab=2,mtext.line=2.5)
-# dev.off()
+tiff(width=7,height=7,units="cm",res=300,pointsize=8,filename="sim_align_3.tif")
+par(mar=c(4,5,.5,.5)) #middle
+alignerrPC(PCA,cluster,choice=4,pcs=c(1,2),
+           point.set=rep(21,8),point.index=groups,point.color=taxon.point,
+           bubble.color=taxon.bubble,cex=cex,cex.lab=2,mtext.line=2.5)
+dev.off()
 
+plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '')
+legend('center',legend=c("shape 1","shape 8"),pch=21,cex=3,
+       pt.bg=sim.palette[c(1,8)],pt.cex=6)
 
 # PC Plots ------------------------------------------------------------------
 plot(shps$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5,main=lsdr[32])
 text(shps$x[,1],shps$x[,2],dimnames(objs)[[3]],pos=4)
-plot3d(shps$x[,1:3],col=sim.palette[groups],size=10)
+plot3d(PCA[[37]]$x[,1:3],col=sim.palette[groups],size=10)
+plot(PCA[[37]]$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5)
 
 # View PC1 Shapes -------------------------------------------------
 diff1<-PCheat(shps,scld,pc=1,palette=palette,alter="none")
@@ -176,31 +130,33 @@ plot3d(diff2[[1]][[1]]$min,axes=F,col=diff1[[2]],size=10,xlab="",ylab="",zlab=""
 
 # VarianceDisparity -------------------------------------------------
 # are more or less complex (# of patches, size of patches) shapes
-# any harder to align properly, i.e., is their more variance among some identical shapes than others?
+# any harder to align properly, i.e., is their more variance among some identical shapes 
+# than others?
 # From Zelditch et al. 2012 workbook (361-362): In studies of shape, a variance can be calculated by measuring 
 # the Procrustes distance of each individual from the mean, which is equivalent to measuring the 
 # variance of each coordinate, summed over all the coordinates. Unlike P.D.P.'s function below,
 # Workbook divides by N-1, not N
 
-############################################################################
-#
-#   Creates a function called individual.disparity() that calculates the 
-#   morphological disparity among several specimens 
-#   from continuous data, including PC scores.  Disparity is calculated as 
-#   the mean squared distance among the specimens.  There is no standardization
-#   because individual specimens do not have variances like groups do.
-#
-#   The format is: individual.disparity( data )
-#
-#   where data are the continuous data with individual specimens on
-#   rows and variables in columns. Written by P. David Polly, 2008
-#
-############################################################################
+#for 1 & 8, take which(group=i), calculate disparity for that group n terms of PC scores
+group1<-which(groups==1) #sphere
+group2<-which(groups==8) #water molecule
 
-
-individual.disparity <- function(d) {
-  dists <-( dist(d))^2
-  return(mean(dists))
+disparity<-matrix(NA, nrow=2,ncol=length(PCA))
+rownames(disparity)<-c("sphere1","water8")
+for (i in 1:length(PCA)){
+  disparity[1,i]<-individual.disparity(PCA[[i]]$x[group1,])
+  disparity[2,i]<-individual.disparity(PCA[[i]]$x[group2,])
 }
 
-#for 1:8, take which(group=i), calculate disparity for that group
+disparitydiff<-disparity[,] %>% #use only "good" alignments
+  apply(.,2, function(x) x[1]/x[2]) %>% #ratio of variance/disparity
+  cbind(.,c(rep(128,9),rep(256,9),rep(512,9),rep(1024,9),rep(2048,9),rep(4096,9))) %>% as.data.frame
+colnames(disparitydiff)<-c("variance.ratio","id")
+
+# library(ggplot2)
+ggplot(data=disparitydiff, aes(x=variance.ratio,fill=factor(id))) +
+  geom_histogram(binwidth=0.25) #ratio of disparity depends on # of points
+
+# Note in example below that code from P.D.P and Zelditch et al. calculations produce same results
+# individual.disparity(PCA[[37]]$x[group1,])
+# apply(PCA[[37]]$m2d[group1,],2,var) %>% sum(.)/(nrow(d2)-1)

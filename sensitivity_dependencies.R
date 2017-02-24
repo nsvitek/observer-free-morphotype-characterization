@@ -4,6 +4,7 @@ library(geomorph)
 library(RColorBrewer)
 library(plot3D)
 library(plotrix)
+library(phangorn)
 
 # source home-grown, local functions
 source("rearrange3ddat.R")

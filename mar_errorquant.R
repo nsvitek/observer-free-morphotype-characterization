@@ -125,21 +125,6 @@ alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summ
           mtext.line=mtext.line)
 
 #So what kind of summary plot would be helpful for determining how many PCs to use if only one alignment run
-
-find.repeatablePCs<-function(PCscores,variable,rep){
-  repeatability<-rep(NA,length(variable))
-  for(i in 1:length(variable)){
-    testgdf<-geomorph.data.frame(coords=PCscores[,i],specimen=variable)
-    errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
-    repeatability[i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
-  }
-  plot(repeatability)
-  lines(repeatability)
-  abline(h=0.95,col="red",lty=2)
-  abline(h=0.90,col="blue",lty=3)
-  return(repeatability)
-}
-
 # find.repeatablePCs(PCA[[40]]$x,variable=groups,rep=6) for simulated data
 step1<-find.repeatablePCs(PCA[[46]]$x,variable=taxa$specnum,rep=6)
 step2<-find.repeatablePCs(PCA[[1]]$x,variable=taxa$specnum,rep=6)

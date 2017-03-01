@@ -160,3 +160,51 @@ ggplot(data=disparitydiff, aes(x=variance.ratio,fill=factor(id))) +
 # Note in example below that code from P.D.P and Zelditch et al. calculations produce same results
 # individual.disparity(PCA[[37]]$x[group1,])
 # apply(PCA[[37]]$m2d[group1,],2,var) %>% sum(.)/(nrow(d2)-1)
+
+
+# Mantel tests
+# mantel_vals<-genMantelvals(PCA,cluster) #takes forever. save results and never overwrite.
+# mantelR<-unlist(mantel_vals[[1]]) %>% matrix(.,ncol=36,byrow=TRUE)
+# rownames(mantelR)<-cluster
+# write.csv(mantelR,"sim_mantelR.csv")
+# mantelP<-unlist(mantel_vals[[2]]) %>% matrix(.,ncol=36,byrow=TRUE)
+# rownames(mantelP)<-cluster
+# write.csv(mantelP,"sim_mantelP.csv")
+# summary_stats<-Rvalsumm(mantel_vals[[1]])
+mantelR<-read.csv("sim_mantelR.csv",row.names=1,header=TRUE)
+summary_stats<-lapply(seq_len(nrow(mantelR)), function(i) unlist(mantelR[i,])) %>%
+  Rvalsumm
+row.names(summary_stats)<-cluster
+# write.csv(summary_stats,file="sim_mantelR_summary-stats.csv")
+# pfish<-Pvalsumm(mantel_vals[[1]],cluster,metric="mean")
+# write.csv(pfish,"sim_r_pairwise_mean_mantelR.csv",quote=F)
+# pfish<-Pvalsumm(mantel_vals[[1]],cluster,metric="median") 
+# write.csv(pfish,"sim_r_pairwise_median_mantelR.csv",quote=F)
+
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_mantelR-mean_line.tif")
+par(mar=c(3,3.3,.5,.5))
+alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="mean observed correlation coefficeint",cex.axis=cex.axis,
+          legend.pos='topleft',legend.txt=legend.txt,legend.title=legend.title,
+          legend.cex=legend.cex,mtext.line=mtext.line)
+dev.off()
+
+#Phenetic trees
+RFdists<-getRFdist(PCA,cluster)
+unlist(RFdists) %>% matrix(.,ncol=36,byrow=TRUE) %>% 
+  write.csv("sim_RFdists_raw.csv")
+summary_stats<-Rvalsumm(RFdists)
+row.names(summary_stats)<-cluster
+write.csv(summary_stats,file="sim_RFdists_summary-stats.csv")
+pfish<-Pvalsumm(RFdists,cluster,metric="mean")
+write.csv(pfish,"sim_r_pairwise_mean_RFdists.csv",quote=F)
+pfish<-Pvalsumm(RFdists,cluster,metric="median")
+write.csv(pfish,"sim_r_pairwise_median_RFdists.csv",quote=F)
+
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_RFdist-mean_line.tif")
+par(mar=c(3,3.3,.5,.5))
+alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Robinson-Foulds Distance",cex.axis=cex.axis,
+          legend.pos='topright',legend.txt=legend.txt,legend.title=legend.title,
+          legend.cex=legend.cex,mtext.line=mtext.line)
+dev.off()

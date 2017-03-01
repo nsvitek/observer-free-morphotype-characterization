@@ -33,7 +33,7 @@ mantelP<-unlist(mantel_vals[[2]]) %>% matrix(.,ncol=36,byrow=TRUE)
 rownames(mantelP)<-cluster
 write.csv(mantelP,"sim_mantelP.csv")
 
-# summary_stats<-Rvalsumm(mantel_vals[[1]])
+summary_stats<-Rvalsumm(mantel_vals[[1]])
 # mantelR<-read.csv("mar_mantelR.csv",row.names=1,header=TRUE) %>% []
 # summary_stats<-lapply(seq_len(nrow(mantelR)), function(i) unlist(mantelR[i,])) %>% 
 #   Rvalsumm 
@@ -52,7 +52,7 @@ alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summ
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()
 
-# Phenograms ------------------------------------------------------------------
+# Dendrograms ------------------------------------------------------------------
 library(phangorn)
 
 getRFdist<-function(PCA,cluster){

@@ -1,4 +1,4 @@
-# functions, objects, etc. unique to sensitivity analyses.
+# functions unique to sensitivity analyses.
 
 
 ### load, format replicate morphologika files 
@@ -263,21 +263,114 @@ alignerrPC<-function(PCA,cluster,choice,pcs=c(1,2),point.set=21,point.index,poin
          pch=point.set[point.index],cex=cex)
 }
 
+### Calculate Mantel test results for all combinations of replicates within a group (see makegroups)
+#input: vector of grep-able cluster names that are in the names of replicates
+#       loaded using readrep function, plus those readrep-ed replicates
+#output: vectors of observed [[1]] and p[[2]] values for each group, organized in a list by group
+genMantelvals<-function(PCA,cluster){
+  combinations<-makecombo(PCA,cluster)
+  mantelR<-sapply(cluster,function(x) NULL) #pairwise Mantel test R's w/in replicates
+  mantelP<-sapply(cluster,function(x) NULL) #significance of R's above
+  for (j in 1:(length(combinations))){
+    for (i in 1:(ncol(combinations[[j]]))){
+      obj<-mantel.t2(var(PCA[[combinations[[j]][1,i]]]$m2d),var(PCA[[combinations[[j]][2,i]]]$m2d),coord=3,nperm=999,graph=FALSE)
+      mantelR[[j]][i]<-obj$r.stat
+      mantelP[[j]][i]<-obj$p
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(list(mantelR,mantelP))
+}
+
+### Calculate Robinson-Foulds distances between phenetic trees for all combinations of replicates within a group (see makegroups)
+#input: vector of grep-able cluster names that are in the names of replicates
+#       loaded using readrep function, plus those readrep-ed replicates
+#output: vectors of Robinson-Foulds values for each group, organized in a list by group
+getRFdist<-function(PCA,cluster){
+  combinations<-makecombo(PCA,cluster)
+  distRF<-sapply(cluster,function(x) NULL) #pairwise RF distances of phenograms
+  for (j in 1:(length(combinations))){
+    for (i in 1:(ncol(combinations[[j]]))){
+      for (k in 1:length(anderson(PCA[[combinations[[j]][i]]]$sdev)$percent)){
+        enough<-sum(anderson(PCA[[combinations[[j]][i]]]$sdev)$percent[1:k])
+        if(enough>=95){
+          enough<-k
+          break
+        }
+      }
+      D1<-dist(PCA[[combinations[[j]][1,i]]]$x[,1:enough], "euclidean") #better?
+      # perform the clustering;  
+      cluster1<-hclust(D1, method="average") #other option is ward.D, ward.D2 or "average" for UPGMA
+      # compute the distances along the branches
+      # D2<-cophenetic(cluster) #for correlation testing, used in development
+      # compute the correlation and write it to the screen
+      # cor(D1,D2) #<0.85 indicates significant distortion
+      # in tests with marsupial rep 180, "average" had highest correlation
+      # draw the dendrogram
+      cluster2<-dist(PCA[[combinations[[j]][2,i]]]$x[,1:enough], "euclidean") %>%
+        hclust(., method="average")
+      # cluster2$labels<-cluster1$labels<-taxa$specnum
+      # cluster2$labels<-cluster1$labels<-taxa2$specnum
+      cluster2$labels<-cluster1$labels<-as.character(groups)
+      # plot(cluster,names=taxa2$specnum)
+      #phangorn version, calculate Robinson-Foulds distance,measure of difference between trees. 
+      #(Steel and Penny 1993; Robinson and Foulds 1981; Wright and Hillis 2014)
+      distRF[[j]][i]<-RF.dist(as.phylo(cluster1),as.phylo(cluster2),check.labels=FALSE)
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(distRF)
+}
+
+### generate Procustes ANOVA-based repeatability values for all PCs a series of alignments
+#Input: multiple-PCA dataset (PCA), clustering vector (cluster), which/how any PCs to examine (pcs), 
+#       how many replicates of a shape are in the dataset (rep), 
+#       the vector that labels the replicates (rep)
+#Output: vectors of repeatability values for each group, organized in a list by group
+genRepeatvals<-function(PCA,cluster,variable,rep,pcs=length(variable)){
+  identity<-makegroups(PCA,cluster)
+  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
+  for (j in 1:(length(identity))){
+    for (i in 1:(length(identity[[j]]))){
+      testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$x[,pcs],specimen=variable)
+      errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
+      #6 used in repeatibility because 6 replicates of each repeated specimen
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(repeatibility)
+}
+
+### generate Procustes ANOVA-based repeatability values for all PCs in a single alignment
+#Input: principal components scores from a PCA (PCscores), 
+#       how many replicates of a shape are in the dataset (rep), 
+#       the vector that labels the replicates (rep)
+#Output: vectors of repeatability values for each PC and a scree plot
+find.repeatablePCs<-function(PCscores,variable,rep){
+  repeatability<-rep(NA,length(variable))
+  for(i in 1:length(variable)){
+    testgdf<-geomorph.data.frame(coords=PCscores[,i],specimen=variable)
+    errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
+    repeatability[i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
+  }
+  plot(repeatability)
+  lines(repeatability)
+  abline(h=0.95,col="red",lty=2)
+  abline(h=0.90,col="blue",lty=3)
+  return(repeatability)
+}
+
 ### Function 6.5 from Claude (2008), used for Mantel tests
 #Input: Two square matrices
 #Output: Element-wise correlation coefficient between the lower triangles of each matrix
-
-mantrstat<-function (m1, m2)
-{ cor(lower.triang(m1),lower.triang(m2))}
-
+mantrstat<-function (m1, m2){ cor(lower.triang(m1),lower.triang(m2))}
 
 ### Function 6.6 from Claude (2008)
 #Input: A square matrix (m1), number of landmarks x number of dimensions (n)
 #       and number of dimensions (coord)
 #Output: permuted matrix
-
-permrowscols<-function (m1,n,coord)
-{s <- sample(1:(n/coord))
+permrowscols<-function (m1,n,coord){s <- sample(1:(n/coord))
 m1[rep(s,coord), rep(s,coord)]}
 
 ### Function  6.7 from Claude (2008)
@@ -285,9 +378,7 @@ m1[rep(s,coord), rep(s,coord)]}
 #       number of dimensions (coord),
 #       number of permutations(nperm), and whether to graph (graph)
 #Output: observed statistic (r.stat) and a p value (p)
-
-mantel.t2<-function(m1,m2,coord=1,nperm=1000,graph=FALSE,...)
-{n<-nrow(m1)
+mantel.t2<-function(m1,m2,coord=1,nperm=1000,graph=FALSE,...){n<-nrow(m1)
 realz<-mantrstat(m1, m2)
 nullstats<-replicate(nperm,mantrstat(m1,permrowscols(m2,n,coord)))
 pval <- sum(nullstats > realz)/nperm
@@ -310,8 +401,6 @@ list(r.stat = realz, p = pval)}
 #   rows and variables in columns. Written by P. David Polly, 2008
 #
 ############################################################################
-
-
 individual.disparity <- function(d) {
   dists <-( dist(d))^2
   return(mean(dists))

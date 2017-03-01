@@ -5,8 +5,8 @@
 # location of scripts
 locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
-# locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+# locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 
 
 # Load Dependencies ------------------------------------------------------------------
@@ -59,7 +59,7 @@ rm(list = setdiff(ls(),freeze)) #clean up environment, also removes freeze
 freeze2<-ls() #NEED THIS?
 setwd(locateData)
 taxa<-read.csv("mardat.csv",header=TRUE,sep=",")
-taxa2<-taxa[-which(taxa$rep==1),] #remove replicates
+taxa2<-taxa[which(taxa$rep==0),] #remove replicates
 setwd("marsup")
 PCA<-readrep(10,18,c(1:nrow(taxa2))) #read in data
 

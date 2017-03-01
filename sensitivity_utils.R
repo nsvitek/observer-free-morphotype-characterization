@@ -284,9 +284,9 @@ genMantelvals<-function(PCA,cluster){
 
 ### Calculate Robinson-Foulds distances between phenetic trees for all combinations of replicates within a group (see makegroups)
 #input: vector of grep-able cluster names that are in the names of replicates
-#       loaded using readrep function, plus those readrep-ed replicates
+#       loaded using readrep function, plus those readrep-ed replicates, tip labels (tips)
 #output: vectors of Robinson-Foulds values for each group, organized in a list by group
-getRFdist<-function(PCA,cluster){
+getRFdist<-function(PCA,cluster,tips){
   combinations<-makecombo(PCA,cluster)
   distRF<-sapply(cluster,function(x) NULL) #pairwise RF distances of phenograms
   for (j in 1:(length(combinations))){
@@ -311,7 +311,7 @@ getRFdist<-function(PCA,cluster){
         hclust(., method="average")
       # cluster2$labels<-cluster1$labels<-taxa$specnum
       # cluster2$labels<-cluster1$labels<-taxa2$specnum
-      cluster2$labels<-cluster1$labels<-as.character(groups)
+      cluster2$labels<-cluster1$labels<-tips
       # plot(cluster,names=taxa2$specnum)
       #phangorn version, calculate Robinson-Foulds distance,measure of difference between trees. 
       #(Steel and Penny 1993; Robinson and Foulds 1981; Wright and Hillis 2014)

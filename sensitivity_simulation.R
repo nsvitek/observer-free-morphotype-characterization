@@ -1,7 +1,7 @@
 locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
-# locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+# locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
+locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 
 # Load Dependencies, Common Objects ------------------------------------------------------------------
 setwd(locateScripts)
@@ -66,8 +66,8 @@ plotRdistr(minset,maxset)
 # plot line graph of mean R^2
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_r-val-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
-alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
-          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab=ylab.txt,cex.axis=cex.axis,
+alignLine(summary_stats[,1],col.tab.discrete[5],pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset[5],cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab=ylab.txt,cex.axis=cex.axis,
           mtext.line=mtext.line)
 dev.off()
 

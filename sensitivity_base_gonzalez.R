@@ -16,7 +16,7 @@ cluster<-c("ts_0399","ts_0600","ts_1000","ts_2000","ts_3000") #group replicates
 
 # plot settings
 pseudolm.lab<-c(399,600,1000,2000,3000) #build grouping vectors
-col.tab.discrete<-brewer.pal((length(cluster)/length(pseudolm.lab)),"Set2")
+col.tab.discrete<-brewer.pal(5,"Set2")
 # legend.txt<-c("Downsampled (2-4k)","Downsampled (9.3k)")
 ylab.txt<-parse(text="R^2")
 legend.title<-"Surface Downsampling"
@@ -62,9 +62,9 @@ plotRdistr(minset,maxset)
 # plot line graph of mean R^2
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="gon_r-val-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
-alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
-          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab=ylab.txt,cex.axis=cex.axis,
-          legend.pos=legend.pos,legend.txt=legend.txt,legend.title=legend.title,
+alignLine(summary_stats[,1],col.tab.discrete[5],pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset[5],cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab=ylab.txt,cex.axis=cex.axis,
+          legend.pos=legend.pos,legend.txt=n,legend.title=legend.title,
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()
 
@@ -168,8 +168,8 @@ write.csv(pfish,"gon_r_pairwise_median_RFdists.csv",quote=F)
 
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="gon_RFdist-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
-alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
-          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Robinson-Foulds Distance",cex.axis=cex.axis,
+alignLine(summary_stats[,1],col.tab.discrete[5],pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset[5],cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Robinson-Foulds Distance",cex.axis=cex.axis,
           legend.pos='n',legend.txt=legend.txt,legend.title=legend.title,
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()

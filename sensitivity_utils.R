@@ -149,7 +149,7 @@ alignLine<-function(input,colortable,pseudolm,quartile.low,quartile.high,
   rp<-length(pseudolm) # number of pseudolandmark settings
   rd<-length(input)/rp # number of downsample settings
   plot(rep(pseudolm,rd),input,bg=colortable[rep(1:rd,each=rp)],
-       pch=rep(pset,each=rp),cex=cex,cex.lab=cex.lab,cex.axis=cex.axis,
+       pch=rep(pch,each=rp),cex=cex,cex.lab=cex.lab,cex.axis=cex.axis,
        xlab="",ylab="",
        xlim=c(min(pseudolm),max(pseudolm)),ylim=c(min(quartile.low),max(quartile.high)))
   mtext(xlab,side=1,line=mtext.line,cex=mtext.cex)
@@ -168,7 +168,7 @@ alignLine<-function(input,colortable,pseudolm,quartile.low,quartile.high,
     lines(pseudolm,input[(rp*i-(rp-1)):(rp*i)],col=colortable[i],
           lwd=line.lwd,lty=3)	
   }
-  points(rep(pseudolm,rd),input,pch=rep(pset,each=rp),bg=colortable[rep(1:rd,each=rp)],cex=cex)
+  points(rep(pseudolm,rd),input,pch=rep(pch,each=rp),bg=colortable[rep(1:rd,each=rp)],cex=cex)
   if (is.null(legend.txt)==FALSE){
     legend(legend.pos,legend.txt,pch=pch,pt.bg=colortable,pt.cex=legend.cex,
            title=legend.title)
@@ -282,6 +282,8 @@ genMantelvals<-function(PCA,cluster){
   return(list(mantelR,mantelP))
 }
 
+
+
 ### Calculate Robinson-Foulds distances between phenetic trees for all combinations of replicates within a group (see makegroups)
 #input: vector of grep-able cluster names that are in the names of replicates
 #       loaded using readrep function, plus those readrep-ed replicates, tip labels (tips)
@@ -322,6 +324,36 @@ getRFdist<-function(PCA,cluster,tips){
   return(distRF)
 }
 
+getRFdist2<-function(PCA,cluster,tips,pcs){
+  combinations<-makecombo(PCA,cluster)
+  distRF<-sapply(cluster,function(x) NULL) #pairwise RF distances of phenograms
+  for (j in 1:(length(combinations))){
+    for (i in 1:(ncol(combinations[[j]]))){
+      D1<-dist(PCA[[combinations[[j]][1,i]]]$x[,pcs], "euclidean") #better?
+      # perform the clustering;  
+      cluster1<-hclust(D1, method="average") #other option is ward.D, ward.D2 or "average" for UPGMA
+      # compute the distances along the branches
+      # D2<-cophenetic(cluster) #for correlation testing, used in development
+      # compute the correlation and write it to the screen
+      # cor(D1,D2) #<0.85 indicates significant distortion
+      # in tests with marsupial rep 180, "average" had highest correlation
+      # draw the dendrogram
+      cluster2<-dist(PCA[[combinations[[j]][2,i]]]$x[,pcs], "euclidean") %>%
+        hclust(., method="average")
+      # cluster2$labels<-cluster1$labels<-taxa$specnum
+      # cluster2$labels<-cluster1$labels<-taxa2$specnum
+      cluster2$labels<-cluster1$labels<-tips
+      # plot(cluster,names=taxa2$specnum)
+      #phangorn version, calculate Robinson-Foulds distance,measure of difference between trees. 
+      #(Steel and Penny 1993; Robinson and Foulds 1981; Wright and Hillis 2014)
+      distRF[[j]][i]<-RF.dist(as.phylo(cluster1),as.phylo(cluster2),check.labels=FALSE)
+      print(paste(j,i,sep="."))
+    }
+  }
+  return(distRF)
+}
+
+
 ### generate Procustes ANOVA-based repeatability values for all PCs a series of alignments
 #Input: multiple-PCA dataset (PCA), clustering vector (cluster), which/how any PCs to examine (pcs), 
 #       how many replicates of a shape are in the dataset (rep), 
@@ -354,7 +386,7 @@ find.repeatablePCs<-function(PCscores,variable,rep){
     errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
     repeatability[i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
   }
-  plot(repeatability)
+  plot(repeatability,xlab="principal components")
   lines(repeatability)
   abline(h=0.95,col="red",lty=2)
   abline(h=0.90,col="blue",lty=3)

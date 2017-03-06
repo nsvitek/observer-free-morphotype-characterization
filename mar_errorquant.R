@@ -84,49 +84,53 @@ library(geomorph)
 # errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
 # repeatibility<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
 
-genRepeatvals<-function(PCA,cluster,variable,rep,pcs=length(variable)){
-  identity<-makegroups(PCA,cluster)
-  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
-  for (j in 1:(length(identity))){
-    for (i in 1:(length(identity[[j]]))){
-      testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$x[,pcs],specimen=variable)
-      errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
-      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
-      #6 used in repeatibility because 6 replicates of each repeated specimen
-      print(paste(j,i,sep="."))
-    }
+repvals<-genRepeatvals(PCA,cluster,variable=taxa$specnum,rep=6,pcs=length(groups))
+summary_stats<-Rvalsumm(repvals) 
+row.names(summary_stats)<-cluster
+write.csv(summary_stats,file="humerr_ProANOVA_summary-stats.csv")
+
+min(summary_stats[,1])
+max(summary_stats[,1])
+
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="humerr_repeatibility-mean_line.tif")
+par(mar=c(3,3.3,.5,.5))
+alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
+          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Repeatibility",cex.axis=cex.axis,
+          legend.pos='top',legend.txt=legend.txt,legend.title=legend.title,
+          legend.cex=legend.cex,mtext.line=mtext.line)
+dev.off()
+
+identity<-makegroups(PCA,cluster[c(13:16)])
+repeatibility<-sapply(cluster[c(13:16)],function(x) NULL)
+
+for (cls in 1:length(identity)){
+  repeatibility[[cls]]<-sapply(identity[[cls]],function(x) NULL) #pairwise correlations of PC1's
+  for (i in 1:length(repeatibility[[cls]])){
+    repeatibility[[cls]][[i]]<-find.repeatablePCs(PCA[[identity[[cls]][i]]]$x,variable=taxa$specnum,rep=6)
   }
-  return(repeatibility)
+  repeatibility[[cls]]<-unlist(repeatibility[[cls]]) %>% 
+    matrix(.,nrow=length(repeatibility[[cls]]),byrow=TRUE) %>% t
+  
 }
 
-repeat_vals<-genRepeatvals(PCA,cluster)
-repeat_vals2<-genRepeatvals(PCA,cluster)
-repeat_vals3<-genRepeatvals(PCA,cluster,variable=taxa$specnum,pcs=1,rep=6)
-repeat_vals4<-genRepeatvals(PCA,cluster,variable=taxa$specnum,pcs=2,rep=6)
-repeat_vals5<-genRepeatvals(PCA,cluster,variable=taxa$specnum,pcs=3,rep=6)
+repeatibility.mat<-unlist(repeatibility[[1]]) %>% matrix(.,nrow=nrow(taxa),byrow=FALSE)
+for (i in 2:length(repeatibility)){
+  repeatibility.mat<-unlist(repeatibility[[i]]) %>% matrix(.,nrow=nrow(taxa),byrow=FALSE) %>%
+    rbind(repeatibility.mat,.)
+}
 
-boxplot(repeat_vals3)
-boxplot(repeat_vals4)
-boxplot(repeat_vals5)
 
-repeat_val1<-genRepeatvals(PCA,cluster,variable=groups,rep=6,pcs=1) 
-repeat_val2<-genRepeatvals(PCA,cluster,variable=groups,rep=6,pcs=2) 
-repeat_val3<-genRepeatvals(PCA,cluster,variable=groups,rep=6,pcs=3) 
-repeat_val4<-genRepeatvals(PCA,cluster,variable=groups,rep=6,pcs=4) 
+summary_stats<-lapply(seq_len(nrow(repeatibility.mat)), function(i) unlist(repeatibility.mat[i,])) %>%
+  Rvalsumm 
 
-boxplot(repeat_val1)
-boxplot(repeat_val2)
-boxplot(repeat_val3)
-boxplot(repeat_val4)
+write.csv(summary_stats,"humerr_ProANOVA_byPC_summary-stats.csv")
 
-summary_stats<-Rvalsumm(repeat_val1)
-alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
-          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="repeatibility",cex.axis=cex.axis,
-          mtext.line=mtext.line)
 
-#So what kind of summary plot would be helpful for determining how many PCs to use if only one alignment run
-# find.repeatablePCs(PCA[[40]]$x,variable=groups,rep=6) for simulated data
-step1<-find.repeatablePCs(PCA[[46]]$x,variable=taxa$specnum,rep=6)
-step2<-find.repeatablePCs(PCA[[1]]$x,variable=taxa$specnum,rep=6)
 
-makegroups(PCA,cluster)
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="humerr_repeatPC-mean_line.tif")
+par(mar=c(3,3.3,.5,.5))
+alignLine(summary_stats[,1],col.tab.discrete,pseudolm=seq(1,nrow(taxa)),summary_stats[,4],summary_stats[,5],
+          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Principal Components",ylab="Repeatibility",cex.axis=cex.axis,
+          legend.pos='topright',legend.txt=c("128","256","512","1,024"),legend.title="Pseudolandmarks",
+          legend.cex=legend.cex,mtext.line=mtext.line)
+dev.off()

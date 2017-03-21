@@ -217,40 +217,40 @@ dev.off()
 # Procrustes ANOVA -----------------------------------------------
 repvals<-genRepeatvals(PCA,cluster,variable=groups,rep=6,pcs=length(groups))
 summary_stats<-Rvalsumm(repvals)
-tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_repeatibility-mean_line.tif")
+tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="sim_repeatability-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete[5],pseudolm.lab,summary_stats[,6],summary_stats[,7],
-          pch=pset[5],cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="Repeatibility",cex.axis=cex.axis,
+          pch=pset[5],cex=cex,cex.lab=cex.lab,xlab="Pseudolandmarks",ylab="repeatability",cex.axis=cex.axis,
           legend.pos='topright',legend.txt=n,legend.title=legend.title,
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()
 
 
 identity<-makegroups(PCA,cluster) #figure out group identity
-repeatibility<-sapply(cluster,function(x) NULL) #make empty list
+repeatability<-sapply(cluster,function(x) NULL) #make empty list
 
-for (cls in 1:length(repeatibility)){
-  repeatibility[[cls]]<-sapply(identity[[cls]],function(x) NULL) #make empty list in list
-  for (i in 1:length(repeatibility[[cls]])){
-    repeatibility[[cls]][[i]]<-find.repeatablePCs(PCA[[identity[[cls]][i]]]$x,variable=groups,rep=6)
+for (cls in 1:length(repeatability)){
+  repeatability[[cls]]<-sapply(identity[[cls]],function(x) NULL) #make empty list in list
+  for (i in 1:length(repeatability[[cls]])){
+    repeatability[[cls]][[i]]<-find_repeatablePCs(PCA[[identity[[cls]][i]]]$x,variable=groups,rep=6)
   } #run repeatibly PCs for given cluster
-  repeatibility[[cls]]<-unlist(repeatibility[[cls]]) %>% #formatting: make each PC a row
-    matrix(.,nrow=length(repeatibility[[cls]]),byrow=TRUE) %>% t
+  repeatability[[cls]]<-unlist(repeatability[[cls]]) %>% #formatting: make each PC a row
+    matrix(.,nrow=length(repeatability[[cls]]),byrow=TRUE) %>% t
   
 }
 
-repeatibility.mat<-unlist(repeatibility[[1]]) %>% matrix(.,nrow=length(groups),byrow=FALSE)
-for (i in 2:length(repeatibility)){
-  repeatibility.mat<-unlist(repeatibility[[i]]) %>% matrix(.,nrow=length(groups),byrow=FALSE) %>%
-    rbind(repeatibility.mat,.)
+repeatability.mat<-unlist(repeatability[[1]]) %>% matrix(.,nrow=length(groups),byrow=FALSE)
+for (i in 2:length(repeatability)){
+  repeatability.mat<-unlist(repeatability[[i]]) %>% matrix(.,nrow=length(groups),byrow=FALSE) %>%
+    rbind(repeatability.mat,.)
 } #bind all clusters into one big matrix
-summary_stats<-lapply(seq_len(nrow(repeatibility.mat)), function(i) unlist(repeatibility.mat[i,])) %>%
+summary_stats<-lapply(seq_len(nrow(repeatability.mat)), function(i) unlist(repeatability.mat[i,])) %>%
   Rvalsumm #make plotting variables
 
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="mar_repeatPC-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm=seq(1,length(groups)),summary_stats[,6],summary_stats[,7],
-          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Principal Components",ylab="Repeatibility",cex.axis=cex.axis,
+          pch=pset,cex=cex,cex.lab=cex.lab,xlab="Principal Components",ylab="repeatability",cex.axis=cex.axis,
           legend.pos='topright',legend.txt=legend.txt,legend.title=legend.title,
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()

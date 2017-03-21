@@ -11,6 +11,6 @@ source("rearrange3ddat.R")
 source("flipPC.R")
 source("anderson.R")
 source("figpiece3d.R")
+source("find_repeatablePCs.R")
+source("PCheat.R")
 source("sensitivity_utils.R")
-
-citation("RColorBrewer")

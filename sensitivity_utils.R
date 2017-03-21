@@ -1,6 +1,5 @@
 # functions unique to sensitivity analyses.
 
-
 ### load, format replicate morphologika files 
 #input: position of minimum and maximum character to substring for names, 
 #       number of principal components to put into uniform orientation
@@ -177,25 +176,6 @@ alignLine<-function(input,colortable,pseudolm,quartile.low,quartile.high,
    title(title.txt,cex.main=cex.main)
 }
 
-### plot heat map differences along PCs
-#input: input data (output from preprocess function), replicate choice (#), palette)
-#       whether to alter differences (changes color distribution; alter="square","cube","none")
-#       note: if multiple alignments, probably scaled=data
-#output: two colored 3D surfaces in ply format, saved.
-PCheat<-function(data,scaled,choice=NA,pc=1,palette,alter="none"){
-  if (is.na(choice)){
-    meanshape<-mshp(scaled$m2d)
-    pc.differences<-pcdif(data,meanshape,pcs=pc)
-  }
-  else{
-    meanshape<-mshp(scaled[[choice]]$m2d)
-    pc.differences<-pcdif(data[[choice]],meanshape,pcs=pc)
-  }
-  heatcolor.index<-shpdif(pc.differences[[1]]$min,pc.differences[[1]]$max,palette,alter=alter)
-  pieces2plot<-list(pc.differences,heatcolor.index)
-  return(pieces2plot)
-}
-
 ### calculate range of PC values a specimen could have due to alignment error
 #Input: rawlist, a list of which replicates [numbers] are part of a group
 #   shapes, a list of prcomp() outputs for each replicate
@@ -361,37 +341,20 @@ getRFdist2<-function(PCA,cluster,tips,pcs){
 #Output: vectors of repeatability values for each group, organized in a list by group
 genRepeatvals<-function(PCA,cluster,variable,rep,pcs=length(variable)){
   identity<-makegroups(PCA,cluster)
-  repeatibility<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
+  repeatability<-sapply(cluster,function(x) NULL) #pairwise correlations of PC1's
   for (j in 1:(length(identity))){
     for (i in 1:(length(identity[[j]]))){
       testgdf<-geomorph.data.frame(coords=PCA[[identity[[j]][i]]]$x[,pcs],specimen=variable)
       errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
-      repeatibility[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
-      #6 used in repeatibility because 6 replicates of each repeated specimen
+      repeatability[[j]][i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
+      #6 used in repeatability because 6 replicates of each repeated specimen
       print(paste(j,i,sep="."))
     }
   }
-  return(repeatibility)
-}
-
-### generate Procustes ANOVA-based repeatability values for all PCs in a single alignment
-#Input: principal components scores from a PCA (PCscores), 
-#       how many replicates of a shape are in the dataset (rep), 
-#       the vector that labels the replicates (rep)
-#Output: vectors of repeatability values for each PC and a scree plot
-find.repeatablePCs<-function(PCscores,variable,rep){
-  repeatability<-rep(NA,length(variable))
-  for(i in 1:length(variable)){
-    testgdf<-geomorph.data.frame(coords=PCscores[,i],specimen=variable)
-    errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
-    repeatability[i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))
-  }
-  plot(repeatability,xlab="principal components")
-  lines(repeatability)
-  abline(h=0.95,col="red",lty=2)
-  abline(h=0.90,col="blue",lty=3)
   return(repeatability)
 }
+
+
 
 ### Function 6.5 from Claude (2008), used for Mantel tests
 #Input: Two square matrices

@@ -5,7 +5,7 @@
 #       the vector that labels the replicates (rep)
 #Output: vectors of repeatability values for each PC and a scree plot
 
-# library(geomorph) #relies on functions in the geomorph package
+library(geomorph) #relies on functions in the geomorph package
 
 find_repeatablePCs<-function(PCscores,variable,rep){
   repeatability<-rep(NA,length(variable))
@@ -20,3 +20,6 @@ find_repeatablePCs<-function(PCscores,variable,rep){
   abline(h=0.90,col="blue",lty=3)
   return(repeatability)
 }
+
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

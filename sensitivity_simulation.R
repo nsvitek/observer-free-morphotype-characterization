@@ -1,6 +1,5 @@
 locateScripts<-"C:/cygwin/home/N.S/scripts/observer-free-morphotype-characterization/"
 # location of data
-# locateData<-"C:/Users/N.S/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 locateData<-"D:/Dropbox/Documents/Dissertation/sensitivity_analysis/data"
 
 # Load Dependencies, Common Objects ------------------------------------------------------------------
@@ -36,18 +35,8 @@ setwd(locateData)
 setwd("simulation")
 PCA<-readrep(19,22,c(1:length(groups)),filename=filename) #read in data
 
-# lsdr<-list.dirs(path = ".", full.names = TRUE, recursive = FALSE)
-# setwd(lsdr[32])
-# objs<-read.morphologika(filename)
-# scld<-preprocess(objs)
-# shps<-prcomp(scld$m2d,scale.=FALSE)
-# anderson(shps$sdev)
-# # cbind(dimnames(objs)[[3]],groups) #check to make sure labels are correct
-
 # Analyses for Publication --------------------------------------------------
-# # # start analyzing
-# PCA[[1]]$x[,1]
-# summary(lm(PCA[[1]]$x[,1]~PCA[[4]]$x[,1]))$r.squared
+
 setwd("../outputr")
 (r_vals<-genRvals(PCA,cluster))
 summary_stats<-Rvalsumm(r_vals)
@@ -111,24 +100,6 @@ dev.off()
 plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '')
 legend('center',legend=c("shape 1","shape 8"),pch=21,cex=3,
        pt.bg=sim.palette[c(1,8)],pt.cex=6)
-
-# PC Plots ------------------------------------------------------------------
-plot(shps$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5,main=lsdr[32])
-text(shps$x[,1],shps$x[,2],dimnames(objs)[[3]],pos=4)
-plot3d(PCA[[37]]$x[,1:3],col=sim.palette[groups],size=10)
-plot(PCA[[37]]$x[,1:2],pch=21,bg=sim.palette[groups],cex=1.5)
-
-# View PC1 Shapes -------------------------------------------------
-diff1<-PCheat(shps,scld,pc=1,palette=palette,alter="none")
-open3d()
-plot3d(diff1[[1]][[1]]$max,axes=F,col=diff1[[2]],size=10,xlab="",ylab="",zlab="")
-open3d()
-plot3d(diff1[[1]][[1]]$min,axes=F,col=diff1[[2]],size=10,xlab="",ylab="",zlab="")
-diff2<-PCheat(shps,scld,pc=2,palette=palette,alter="square")
-open3d()
-plot3d(diff2[[1]][[1]]$max,axes=F,col=diff1[[2]],size=10,xlab="",ylab="",zlab="")
-open3d()
-plot3d(diff2[[1]][[1]]$min,axes=F,col=diff1[[2]],size=10,xlab="",ylab="",zlab="")
 
 # VarianceDisparity -------------------------------------------------
 # are more or less complex (# of patches, size of patches) shapes
@@ -256,3 +227,5 @@ alignLine(summary_stats[,1],col.tab.discrete,pseudolm=seq(1,length(groups)),summ
 dev.off()
 
 
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

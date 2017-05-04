@@ -70,3 +70,6 @@ add.alpha <- function(col, alpha=1){
         function(x) 
           rgb(x[1], x[2], x[3], alpha=alpha))  
 }
+
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

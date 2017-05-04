@@ -6,43 +6,6 @@
 #if reversed is closer, reverse the PC, then move on.
 #do the same for PC2. 
 
-# library(geomorph)
-# setwd("C:/cygwin64/home/N.S/scripts")
-# source("rearrange3ddat.R")
-# 
-# ##Get replicates to work with
-# setwd("C:/Users/N.S/Documents/Dissertation/Rwork/mardat_NO_PLY")
-# getwd()
-# lsdr<-list.dirs(path = ".", full.names = TRUE, recursive = FALSE)
-# lsdr<-lsdr[81:89]
-# ssr<-substr(lsdr,10,22)#get names, just fulk_128 reps
-# objs<-sapply(ssr,function(x) NULL)
-# scld<-sapply(ssr,function(x) NULL)
-# mat2<-sapply(ssr,function(x) NULL)
-# shps<-sapply(ssr,function(x) NULL)
-# cs_all<-sapply(ssr,function(x) NULL)
-# 
-# 
-# for (i in 1:(length(lsdr))){ #loop reads in morphometric data in folders
-#   setwd(lsdr[i])
-#   objs[[i]]<-read.morphologika("morphologika_2_unscaled.txt")
-#   shape<-objs[[i]][,,-c(1,11,27)]
-#   scld[[i]]<-shape
-#   centroid<-apply(shape,2,mean)
-#   cs<-NULL
-#   for (h in 1:dim(shape)[3]){
-#     cs[h]<-sqrt(sum((t(t(shape[,,h])-centroid))^2))
-#     scld[[i]][,,h]<-shape[,,h]/cs[h]
-#   }
-#   cs_all[[i]]<-cs
-#   mat1<-scld[[i]][,,1]
-#   for (j in 2:dim(scld[[i]])[3]){mat1<-cbind(mat1,scld[[i]][,,j])}
-#   mat2[[i]]<-rearrange1(mat1)
-#   shps[[i]]<-prcomp(mat2[[i]],scale.=FALSE)
-#   print(paste(i,"of",length(lsdr),"generalized procrustes analyses"))
-#   setwd("..")
-# }
-
 #num is which PCs you want flipped. If multiple, must be c(1:2)
 flipPC=function(shps,num){
   for (q in min(num):max(num)){
@@ -61,3 +24,5 @@ flipPC=function(shps,num){
   return(shps)
 }
 
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

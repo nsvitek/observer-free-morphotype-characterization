@@ -1,5 +1,5 @@
 # # script to quantify human error in the marsupial dataset for senstivity analyses
-# based on von Cramon-Taubadel et al 2007, Lockwood et al 2002
+# based on von Cramon-Taubadel et al 2007, Lockwood et al 2002, Fruciano 2016
 
 # sourced by sensitivity_base-objs.R, where things like file locations are stored.
 
@@ -25,9 +25,10 @@ PCA<-readrep(10,18,c(1:3))
 #start analyzing
 setwd("../outputr")
 
-#explore to get a sense of what you expect to find
+#explore to get a sense of what you expect to find. 'taxa$rep' is a column identifying replicates.
+# 'taxa$taxon' is a column identifying different species groups
 plot(PCA[[60]]$x[,1:2],bg=c("black","blue")[taxa$rep+1],pch=c(21,22)[taxa$taxon])
-anderson(PCA[[47]]$sdev^2) #first four PCs significant
+anderson(PCA[[47]]$sdev^2) 
 
 #make a vector of which  specimens are replicated specimens, which are not
 repgroups<-rep(1,nrow(taxa)) #base vector of replicate groups, to be modified
@@ -82,11 +83,13 @@ write.csv(summary_groups,file="humerr_groups_summary-stats.csv")
 # errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
 # repeatability<-((errorANOVA$MS[1]-errorANOVA$MS[2])/6)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/6))
 
+# test for repeatibility in the dataset as a whole
 repvals<-genRepeatvals(PCA,cluster,variable=taxa$specnum,rep=6,pcs=length(groups))
-summary_stats<-Rvalsumm(repvals) 
+summary_stats<-Rvalsumm(repvals) #organize results
 row.names(summary_stats)<-cluster #calculate and label summary statistics for procustes ANOVA scores
 write.csv(summary_stats,file="humerr_ProANOVA_summary-stats.csv")
 
+# make figure
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="humerr_repeatability-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summary_stats[,7],
@@ -95,7 +98,7 @@ alignLine(summary_stats[,1],col.tab.discrete,pseudolm.lab,summary_stats[,6],summ
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()
 
-
+# test for repeatibility PC by PC
 identity<-makegroups(PCA,cluster[c(13:16)])
 repeatability<-sapply(cluster[c(13:16)],function(x) NULL)
 for (cls in 1:length(identity)){
@@ -118,6 +121,8 @@ summary_stats<-lapply(seq_len(nrow(repeatability.mat)), function(i) unlist(repea
 
 write.csv(summary_stats,"humerr_ProANOVA_byPC_summary-stats.csv")
 
+
+# make figure
 tiff(width=7,height=7,units="cm",res=800,pointsize=8,filename="humerr_repeatPC-mean_line.tif")
 par(mar=c(3,3.3,.5,.5))
 alignLine(summary_stats[,1],col.tab.discrete,pseudolm=seq(1,nrow(taxa)),summary_stats[,4],summary_stats[,5],
@@ -125,3 +130,6 @@ alignLine(summary_stats[,1],col.tab.discrete,pseudolm=seq(1,nrow(taxa)),summary_
           legend.pos='topright',legend.txt=c("128","256","512","1,024"),legend.title="Pseudolandmarks",
           legend.cex=legend.cex,mtext.line=mtext.line)
 dev.off()
+
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

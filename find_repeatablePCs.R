@@ -8,8 +8,8 @@
 # library(geomorph) #relies on functions in the geomorph package
 
 find_repeatablePCs<-function(PCscores,variable,rep){
-  repeatability<-rep(NA,length(variable))
-  for(i in 1:length(variable)){
+  repeatability<-rep(NA,ncol(PCscores))
+  for(i in 1:ncol(PCscores)){
     testgdf<-geomorph.data.frame(coords=PCscores[,i],specimen=variable)
     errorANOVA<-procD.lm(coords~factor(specimen),data=testgdf,iter=999,RRPP=TRUE) %>% .$aov.table
     repeatability[i]<-((errorANOVA$MS[1]-errorANOVA$MS[2])/rep)/(errorANOVA$MS[2]+((errorANOVA$MS[1]-errorANOVA$MS[2])/rep))

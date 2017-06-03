@@ -138,8 +138,8 @@ plotRdistr<-function(minset,maxset){
 
 ### plot line graph of mean or median R^2 values 
 #input: the R^2 values to be plot(input), color lookup table for different lines(colortable), 
-#       pseudolandmark values(pseudolm), 
-#output: a layered black and white histogram
+#       pseudolandmark values(pseudolm), quartiles (quartile.low and quartile.high)
+#output: a line plot with confidence intervals modelled by quartiless
 alignLine<-function(input,colortable,pseudolm,quartile.low,quartile.high,
                     pch=21,cex=1,cex.lab=1,cex.axis=1,xlab="",ylab="",
                     mtext.line=2,mtext.cex=1,line.lwd=2,

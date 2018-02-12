@@ -16,3 +16,6 @@ PCheat<-function(data,scaled,choice=NA,pc=1,palette,alter="none"){
   pieces2plot<-list(pc.differences,heatcolor.index)
   return(pieces2plot)
 }
+
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

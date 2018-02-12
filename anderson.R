@@ -14,3 +14,6 @@ anderson<-function(sdev){
   names(result)<-c("eigenvalues","percent","pvals")
   return(result)
 }
+
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

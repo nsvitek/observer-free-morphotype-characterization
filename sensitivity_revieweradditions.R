@@ -1,7 +1,7 @@
 # Mantel Tests ------------------------------------------------------------------
 # library(ade4)
 
-#Claude 2008 points out that "Procrustean" data needs a special function
+#Claude 2008 points out that Procrustean data needs a special function
 #because rows and columns of landmark data are not independent and interchangeable
 #(they are parts of coordinates). He has modified functions accordingly
 #resulting in function mantel.t2(), copied to sensitivity_utils.R

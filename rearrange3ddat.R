@@ -56,15 +56,5 @@ rearrange123<-function(x,m){
   return(result)
 }
 
-############################################Function written by Aaron Wood.
-rearrange1=function(x){
-  result=matrix(0,ncol(x)/3,nrow(x)*3)
-  a=seq(1,ncol(result)-2,by=3)
-  b=seq(2,ncol(result)-1,by=3)
-  c=seq(3,ncol(result),by=3)
-  for (i in 1:nrow(result)){
-    result[i,a]=x[,((i-1)*3)+1]
-    result[i,b]=x[,((i-1)*3)+2]
-    result[i,c]=x[,((i-1)*3)+3]}
-  return(result)}
-############################################
+### If you use this code in published materials, please cite: 
+# Vitek, N.S., Manz, C.L., Gao, T. Bloch, J.I., Strait, S.G., Boyer, D.M. In Press. Semi-supervised determination of pseudocryptic morphotypes using observer-free characterizations of anatomical alignment and shape. Ecology and Evolution. 

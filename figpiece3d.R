@@ -56,7 +56,7 @@ shpdif<-function(shape1,shape2,palette,alter="none",outlier=FALSE,...){
     change2[which(change2==max(change2))]<-median(change2) #remove outlier
   }
   if(alter=="none"){col<-change2} else {col<-unlist(lapply(change2,alter))}
-  colbydiff<-cut(col,ncut)
+  colbydiff<-rescale(col,to=c(1,ncut)) %>% round
   raintable<-palette(ncut)
   result<-raintable[colbydiff]
   return(result)

@@ -1,3 +1,6 @@
+#requires other functions in the figpiece3d.R script. Also requires libraries
+#'scales', 'geomorph', and possibly 'dplyr'
+
 ### plot heat map differences along PCs
 #input: input data (output from preprocess function), replicate choice (#), palette)
 #       whether to alter differences (changes color distribution; alter="square","cube","none")
@@ -5,7 +8,7 @@
 #output: two colored 3D surfaces in ply format, saved.
 PCheat<-function(data,scaled,choice=NA,pc=1,palette,alter="none"){
   if (is.na(choice)){
-    meanshape<-mshp(scaled$m2d)
+    meanshape<-mshp(scaled)
     pc.differences<-pcdif(data,meanshape,pcs=pc)
   }
   else{
